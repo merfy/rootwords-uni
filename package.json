@@ -1,0 +1,25 @@
+{
+  "name": "rootwords-uni",
+  "version": "1.0.0",
+  "description": "IELTS Word Roots - UniApp (H5 + WeChat Mini Program)",
+  "scripts": {
+    "dev:h5": "uni -p h5",
+    "build:h5": "uni build -p h5",
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build:mp-weixin": "uni build -p mp-weixin"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-alpha-5010220260604001",
+    "@dcloudio/uni-h5": "3.0.0-alpha-5010220260604001",
+    "@vue/runtime-core": "^3.4.38",
+    "@vue/runtime-dom": "^3.4.38",
+    "@vue/shared": "^3.4.38",
+    "vue": "^3.4.38"
+  },
+  "devDependencies": {
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5010220260604001",
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5010220260604001",
+    "typescript": "^5.0.0",
+    "vite": "^5.2.8"
+  }
+}

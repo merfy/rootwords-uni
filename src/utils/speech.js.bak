@@ -1,0 +1,107 @@
+/**
+ * Cross-platform speech utility
+ * H5: uses Web Speech API (window.speechSynthesis)
+ * Mini Program: TTS via innerAudioContext (placeholder - needs backend TTS or pre-recorded audio)
+ */
+
+/**
+ * Detect if text is primarily Chinese
+ */
+function isChineseText(text) {
+  return /[\u4e00-\u9fff]/.test(text)
+}
+
+/**
+ * Find the best available voice for a given language
+ */
+function findVoice(lang) {
+  if (!window.speechSynthesis) return null
+  const voices = window.speechSynthesis.getVoices()
+  // Try exact match first
+  const exact = voices.find(v => v.lang === lang)
+  if (exact) return exact
+  // Try partial match (e.g. 'en' matches 'en-US', 'en-GB')
+  const partial = voices.find(v => v.lang.startsWith(lang.split('-')[0]))
+  if (partial) return partial
+  // Fallback to any voice
+ return voices[0] || null
+}
+
+/**
+ * Initialize speech synthesis — pre-load voices for Chrome compatibility
+ */
+export function initSpeech() {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return false
+  // Force Chrome to load available voices
+  window.speechSynthesis.getVoices()
+  window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices()
+  }
+  return true
+}
+
+/**
+ * Speak a single text with language-aware settings
+ */
+export function speakText(text, onDone) {
+  // #ifdef H5
+  if (!window.speechSynthesis) {
+    if (onDone) onDone()
+    return
+  }
+  // Ensure voices are available
+  if (window.speechSynthesis.getVoices().length === 0) {
+    try { window.speechSynthesis.getVoices() } catch (e) {}
+  }
+  window.speechSynthesis.cancel()
+  const u = new SpeechSynthesisUtterance(text)
+  if (isChineseText(text)) {
+    u.lang = 'zh-CN'
+    u.rate = 0.85
+  } else {
+    u.lang = 'en-US'
+    u.rate = 0.82
+  }
+  u.pitch = 1
+  u.volume = 1
+  // Try to find a matching voice
+  const voice = findVoice(u.lang)
+  if (voice) u.voice = voice
+  u.onend = () => { if (onDone) onDone() }
+  u.onerror = () => { if (onDone) onDone() }
+  window.speechSynthesis.speak(u)
+  // #endif
+  // #ifdef MP-WEIXIN
+  console.log('TTS not available in MP mode without audio files: ' + text)
+  if (onDone) onDone()
+  // #endif
+}
+
+/**
+ * Speak a sequence of texts in order
+ * @param {string[]} texts - array of texts to speak in sequence
+ * @param {function} onDone - called when all texts have been spoken
+ * @param {function} onStep - called after each text (receives index)
+ */
+export function speakSequence(texts, onDone, onStep) {
+  let idx = 0
+  function next() {
+    if (idx >= texts.length) {
+      if (onDone) onDone()
+      return
+    }
+    speakText(texts[idx], () => {
+      idx++
+      if (onStep) onStep(idx)
+      next()
+    })
+  }
+  next()
+}
+
+export function cancelSpeech() {
+  // #ifdef H5
+  if (window.speechSynthesis) window.speechSynthesis.cancel()
+  // #endif
+}
+

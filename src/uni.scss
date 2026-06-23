@@ -1,0 +1,26 @@
+/* UniApp global variables */
+:root {
+  --primary: #1e3a5f;
+  --accent: #2b6f9b;
+  --accent-light: #e8f0f8;
+  --bg: #f7f8fa;
+  --card: #fff;
+  --text: #1a1a2e;
+  --muted: #5a6a7a;
+  --border: #dde3ea;
+  --warm: #c44536;
+  --cool: #2d6a4f;
+  --radius: 6px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+image {
+  max-width: 100%;
+}
+button {
+  font-family: inherit;
+}
