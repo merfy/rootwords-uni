@@ -5,7 +5,7 @@ const __VP = path_bv.resolve(__dirname, 'src/build-version.json');
 let __VV = 0;
 try { __VV = JSON.parse(fs_bv.readFileSync(__VP, 'utf-8')).version || 0; } catch (e) { __VV = 0; }
 const uni = require('@dcloudio/vite-plugin-uni').default;
-const path = require('path');
+  const path = require('path');
 
 function uniAppPatchPlugin() {
   return {
@@ -80,6 +80,7 @@ function createFixedUniPlugins() {
 }
 
 module.exports = defineConfig({
+  base: './',
   plugins: [
     {
       name: 'version-bump',
