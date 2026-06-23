@@ -272,7 +272,6 @@ onLoad((query) => {
 <style scoped>
 .page { display: flex; flex-direction: column; min-height: 100vh; background: #f8f9fb; }
 .header { background: #1e3a5f; color: #fff; padding: 10px 16px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 50; }
-.back-btn { background: none; border: none; color: #fff; display: flex; align-items: center; justify-content: center; position: absolute; left: 4px; top: 50%; transform: translateY(-50%); padding: 12px 16px; cursor: pointer; opacity: 0.9; line-height: 1; min-width: 44px; min-height: 44px; border-radius: 8px; font-size: 22px; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; } .back-btn:active { background: rgba(255,255,255,0.1); }
 .header-title { font-size: 16px; font-weight: 600; }
 .main { flex: 1; padding: 16px 20px; overflow-y: auto; }
 .loading-state { text-align: center; padding: 60px 20px; }
@@ -329,3 +328,4 @@ onLoad((query) => {
 
 
 
+ .back-btn { background: none; border: none; color: #fff; display: flex; align-items: center; justify-content: center; position: absolute; left: 6px; top: 50%; transform: translateY(-50%); padding: 6px 8px; cursor: pointer; opacity: 0.85; line-height: 1; font-size: 26px; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; } .back-btn:active { opacity: 0.5; }

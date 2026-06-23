@@ -107,7 +107,7 @@ module.exports = defineConfig({
     port: 5173,
     fs: {
       strict: false,
-      allow: ['.', '..'],
+         allow: ['.'],
     },
     watch: {
       ignored: ['**/node_modules/@dcloudio/**'],
