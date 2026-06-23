@@ -4,13 +4,22 @@
  * Mini Program: TTS via innerAudioContext (placeholder)
  *
  * On Mac/Safari the native speechSynthesis can sound robotic/tinny.
+ * On iOS Safari, calling speechSynthesis.cancel() before speak() causes silent audio -
+ * this is a well-known iOS bug. iOS does not use network TTS (Google blocked in China).
  * Strategy:
  *   1) Prefer high-quality system voices by name (Samantha, Karen, Google US English, etc.)
  *   2) Fall back to a network-based TTS (Google Translate) for better quality
  *   3) Handle Safari's async voice loading quirks
+ *   4) iOS: use native speechSynthesis only, skip cancel() before speak(), skip keepAlive
  */
 
 // --- helpers ---
+
+function isIOS() {
+  if (typeof navigator === 'undefined') return false
+  var ua = navigator.userAgent
+  return /iPad|iPhone|iPod/.test(ua)
+}
 
 function isChineseText(text) {
   return /[\u4e00-\u9fff]/.test(text)
@@ -117,8 +126,9 @@ function playNetworkVoice(text, lang, onDone) {
 // --- Main speak functions ---
 
 function shouldUseNetworkTTS() {
+  if (isIOS()) return false
   var ua = typeof navigator !== 'undefined' ? navigator.userAgent : ''
-  var isSafari = /^((?!chrome|android).)*safari/i.test(ua) || /iPad|iPhone|iPod/.test(ua)
+  var isSafari = /^((?!chrome|android).)*safari/i.test(ua)
   var isFirefoxMac = /Firefox/.test(ua) && /Mac/.test(ua)
   return isSafari || isFirefoxMac
 }
@@ -136,7 +146,11 @@ export function speakText(text, onDone) {
     return
   }
 
-  window.speechSynthesis.cancel()
+  // iOS Safari bug: cancel() before speak() in the same execution context
+  // causes silent audio. Skip cancel() on iOS.
+  if (!isIOS()) {
+    window.speechSynthesis.cancel()
+  }
 
   if (decideTTSStrategy()) {
     playNetworkVoice(text, isChineseText(text) ? 'zh-CN' : 'en-US', onDone)
@@ -168,14 +182,17 @@ export function speakText(text, onDone) {
   u.onend = function() { if (onDone) onDone() }
   u.onerror = function() { if (onDone) onDone() }
 
-  var keepAlive = setInterval(function () {
-    if (window.speechSynthesis.speaking === false) {
-      clearInterval(keepAlive)
-    } else {
-      window.speechSynthesis.pause()
-      window.speechSynthesis.resume()
-    }
-  }, 10000)
+  // iOS does not need the keepAlive pause/resume hack - it may interfere
+  if (!isIOS()) {
+    var keepAlive = setInterval(function () {
+      if (window.speechSynthesis.speaking === false) {
+        clearInterval(keepAlive)
+      } else {
+        window.speechSynthesis.pause()
+        window.speechSynthesis.resume()
+      }
+    }, 10000)
+  }
 }
 
 export function speakSequence(texts, onDone, onStep) {
@@ -202,3 +219,4 @@ export function cancelSpeech() {
   if (window.speechSynthesis) window.speechSynthesis.cancel()
 }
 
+export { isIOS }

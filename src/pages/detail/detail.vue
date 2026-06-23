@@ -22,7 +22,7 @@
  import { ref } from 'vue'
  import { onLoad, onShow } from '@dcloudio/uni-app'
  import DATA from '@/utils/data'
- import { speakSequence, cancelSpeech, initSpeech } from '@/utils/speech'
+ import { speakSequence, cancelSpeech, initSpeech, isIOS } from '@/utils/speech'
  import { getAffixMeaning } from '@/utils/affixes'
 const currentIndex = ref(0)
 const renderKey = ref(0)
@@ -91,7 +91,12 @@ function goQuizRoot() {
   uni.navigateTo({ url: `/pages/quiz/quiz?scope=${encodeURIComponent(rootData.value.root)}&fromIndex=${currentIndex.value}` })
 }
 function speakCard(w, wi) {
-  cancelSpeech()
+  // iOS Safari bug: cancel() followed by speak() in the same execution context
+  // makes audio silent. Skip explicit cancel on iOS; let the new utterance play
+  // after the current one finishes naturally.
+  if (!isIOS()) {
+    cancelSpeech()
+  }
   if (playingCardIndex.value === wi) {
     playingCardIndex.value = -1
     return

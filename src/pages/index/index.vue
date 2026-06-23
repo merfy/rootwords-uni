@@ -70,6 +70,8 @@ import { ref, computed, onMounted } from 'vue'
 import { getSegClass } from '@/utils/progress'
 import DATA from '@/utils/data'
 
+const DATA_VERSION = '2'  // v2 = sorted alphabetically; clears stale lastRootIndex from v1
+
 const mainHeight = ref('100vh')
 
 // Force progress bar re-render when page becomes visible
@@ -98,6 +100,13 @@ onMounted(() => {
   try {
     if (!sessionStorage.getItem('_rootAutoNav')) {
       sessionStorage.setItem('_rootAutoNav', '1')
+      // Migration: if data was re-sorted, clear stale saved index
+      try {
+        if (localStorage.getItem('dataVersion') !== DATA_VERSION) {
+          localStorage.removeItem('lastRootIndex')
+          localStorage.setItem('dataVersion', DATA_VERSION)
+        }
+      } catch(e) {}
       const lastIdx = localStorage.getItem('lastRootIndex')
       if (lastIdx !== null) {
         const idx = parseInt(lastIdx)
